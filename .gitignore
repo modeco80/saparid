@@ -1,0 +1,12 @@
+/build/
+
+# CLion
+/.idea/
+/cmake-build-*
+
+# Visual Studio
+/.vs
+/out
+
+# python module cache
+tools/**/__pycache__
