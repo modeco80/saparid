@@ -3,12 +3,12 @@
 import sys
 from gen import GitInfo, OutputProcessor
 
-# Configuration options
-TRUNK = "master"
-DIRTY_CHAR = '*'
 TARGET_LANGUAGE = OutputProcessor.TargetLanguage.CC
 CC_NAMESPACE = "saparid::version"
 C_PREFIX = "SAPARID_VERSION"
+
+TRUNK = "master"
+DIRTY_CHAR = '*'
 
 def usage(err):
 	if err != None:
@@ -19,17 +19,19 @@ def usage(err):
 	print(f"    C++ namespace: {CC_NAMESPACE}")
 	print(f"    C macro prefix: {C_PREFIX}")
 	print(f"    Dirty worktree indicator: {DIRTY_CHAR}")
+	if err != None:
+		sys.exit(1)
+	else:
+		sys.exit(0)
 
 def main():
 	if not len(sys.argv) > 1:
 		usage("Filename argument not provided")
-		sys.exit(1)
 
-	# Get Git version information
 	info = GitInfo.RevisionInformation(TRUNK, DIRTY_CHAR)
-	outputProcessor = OutputProcessor.createOutputProcessor(TARGET_LANGUAGE)
 	
 	# Setup the output processor depending on target language
+	outputProcessor = OutputProcessor.createOutputProcessor(TARGET_LANGUAGE)
 	match TARGET_LANGUAGE:
 		case OutputProcessor.TargetLanguage.C:
 			outputProcessor.setPrefix(C_PREFIX)

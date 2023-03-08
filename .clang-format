@@ -25,7 +25,7 @@ AllowAllParametersOfDeclarationOnNextLine: false
 AllowShortBlocksOnASingleLine: Never
 AllowShortFunctionsOnASingleLine: InlineOnly
 AllowShortIfStatementsOnASingleLine: Never
-AllowShortLoopsOnASingleLine: true
+AllowShortLoopsOnASingleLine: false
 AllowShortLambdasOnASingleLine: Inline
 AllowShortCaseLabelsOnASingleLine: false
 AllowShortEnumsOnASingleLine: false

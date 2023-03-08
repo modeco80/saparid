@@ -31,14 +31,9 @@ class OutputProcessorC(GitInfo.OutputProcessor):
 	{self._getOutputWithoutCppControlStatements(info)}
 #endif
 		"""
-		
-	"""
-	We cannot use true/false, so we use 0/1. 
-	They will do the right thing in the preprocessor contexts they might be needed for, 
-	and should convert nicely back to booleans (if that's so desired.).
-	"""
+
 	@staticmethod
-	def __bool_to_c(value):
+	def __bool_to_c(value: bool):
 		if value:
 			return "1"
 		return "0"
@@ -47,9 +42,8 @@ class OutputProcessorC(GitInfo.OutputProcessor):
 """ Implmentation of OutputProcessor for C++ """
 class OutputProcessorCC(GitInfo.OutputProcessor):
 	def __init__(self):
-		# We also provide C definitions when using C++
-		# as the output language. To practice DRY,
-		# we use the C implementation.
+		# We also provide C definitions when using C++ as the output language. 
+		# To avoid repeating code generation, we use the C implementation.
 		self.__cprocessor = OutputProcessorC()
 		self.__namespace = ""
 		
@@ -60,7 +54,7 @@ class OutputProcessorCC(GitInfo.OutputProcessor):
 		self.__cprocessor.setPrefix(prefix)
 
 	@staticmethod
-	def __bool_to_cc(value):
+	def __bool_to_cc(value: bool):
 		return str(value).lower()
 	
 	def getOutput(self, info):

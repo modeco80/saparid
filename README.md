@@ -1,18 +1,20 @@
 # saparid
 
-A (WIP) server for Sony SAPARi/"Community Places", without any (hard-coded) limits whatsoever (and/or needing Wine/a X11 desktop just to run a server).
+A greenfield server for Sony SAPARi/"Community Places", written in C++23.
 
-**NOTE**: This project is WIP for the time being. It most definitely will not be functional until some sort of beta release.
+**NOTE**: This project is WIP for the time being. It most definitely will not be functional for a bit.
 
 # Building
 
 You will need:
 - CMake 3.25 or higher
 - Python 3.9 or higher
-- A C++20 compiler of some sort
+- A C++23 compiler of some sort
 - Boost 1.81 or higher
 
-It's probably a good idea to install/use vcpkg if you're on Windows (this project provides a manifest!). If you do so the cmake presets include a -vcpkg preset which uses `C:\\vcpkg` by default.
+It's probably a good idea to install/use vcpkg if you're on Windows (this project provides a manifest!).
+
+If you do so the cmake presets include a -vcpkg preset which uses `C:\\vcpkg` by default, and can be used to pull in dependencies like that.
 
 ## Visual Studio
 

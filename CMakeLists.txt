@@ -12,8 +12,7 @@ project(saparid
 
 # Set the default C++ standard for (bad) projects
 # which do not test for feature support.
-# TODO: Set this to C++23 once it's available in MSVC
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 list(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 include(Policies)
@@ -24,6 +23,18 @@ find_package(Python3 REQUIRED
 
 find_package(Boost REQUIRED COMPONENTS system)
 
+# Third-party dependencies (besides Boost, which is expected to be installed)
+add_subdirectory(third_party/kumi)
+add_subdirectory(third_party/fmt)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+	# Target the Windows 10 API set (while it would be nice to support older Windows versions
+	# it's more legacy baggage and I'd rather not encumber that right away)
+	#
+	# TODO: Move this to the project setup calls....
+	add_definitions(-D_WIN32_WINNT=0x0A00)
+endif()
+
 # Add a target for Git version generation.
 set(VERSION_FILENAME GitVersion.hpp)
 add_custom_target(_git_version
@@ -32,5 +43,7 @@ add_custom_target(_git_version
 	SOURCES ${PROJECT_BINARY_DIR}/${VERSION_FILENAME})
 set_source_files_properties(${PROJECT_BINARY_DIR}/${VERSION_FILENAME} PROPERTIES GENERATED TRUE)
 
+
+add_subdirectory(src/common)
 
 add_subdirectory(src/saparid)
