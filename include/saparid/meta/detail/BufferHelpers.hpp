@@ -35,11 +35,15 @@ namespace saparid::meta::detail {
 
 	template<class T, std::endian Endian, class Buffer>
 	constexpr static T ReadValueEndian(Buffer& buffer) {
-		T t;
+		T t{};
+
+		if(buffer.data() == buffer.end())
+			return t;
 
 		// read data & advance the buffer
 		std::memcpy(std::bit_cast<u8*>(&t), buffer.data(), sizeof(T));
 		buffer += sizeof(T);
+
 
 		if constexpr(Endian != std::endian::native && sizeof(T) > 1)
 			return std::byteswap(ToBestBits(t));
@@ -50,6 +54,9 @@ namespace saparid::meta::detail {
 	template<class T, std::endian Endian, class Buffer>
 	constexpr static void WriteValueEndian(Buffer& buffer, const T value) {
 		auto out = value;
+
+		if(buffer.data() == buffer.end())
+			return;
 
 		if constexpr(Endian != std::endian::native && sizeof(T) > 1)
 			out = std::byteswap(ToBestBits(out));

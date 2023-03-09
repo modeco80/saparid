@@ -20,18 +20,12 @@ namespace saparid::meta::detail {
 
 	template<class TObject, common::FixedString name, auto Member, class Buffer>
 	struct ReadMemberImpl<TObject, u8_<name, Member>, Buffer> {
-		constexpr static void _(TObject& dest, Buffer& buffer) {
-			(dest.*Member) = *buffer.data();
-			buffer += 1;
-		}
+		constexpr static void _(TObject& dest, Buffer& buffer) { (dest.*Member) = ReadValueEndian<u8, std::endian::native>(buffer); }
 	};
 
 	template<class TObject, common::FixedString name, auto Member, class Buffer>
 	struct ReadMemberImpl<TObject, s8_<name, Member>, Buffer> {
-		constexpr static void _(TObject& dest, Buffer& buffer) {
-			(dest.*Member) = *buffer.data();
-			buffer += 1;
-		}
+		constexpr static void _(TObject& dest, Buffer& buffer) { (dest.*Member) = ReadValueEndian<s8, std::endian::native>(buffer); }
 	};
 
 	template<class TObject, common::FixedString name, auto Member, std::endian Endian, class Buffer>

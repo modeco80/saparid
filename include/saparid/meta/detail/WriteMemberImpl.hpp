@@ -19,18 +19,12 @@ namespace saparid::meta::detail {
 
 	template<class TObject, common::FixedString name, auto Member, class Buffer>
 	struct WriteMemberImpl<TObject, u8_<name, Member>, Buffer> {
-		constexpr static void _(const TObject& src, Buffer& buffer) {
-			*buffer.data() = (src.*Member);
-			buffer += 1;
-		}
+		constexpr static void _(const TObject& src, Buffer& buffer) { WriteValueEndian<s8, std::endian::native>(buffer, (src.*Member)); }
 	};
 
 	template<class TObject, common::FixedString name, auto Member, class Buffer>
 	struct WriteMemberImpl<TObject, s8_<name, Member>, Buffer> {
-		constexpr static void _(const TObject& src, Buffer& buffer) {
-			*buffer.data() = (src.*Member);
-			buffer += 1;
-		}
+		constexpr static void _(const TObject& src, Buffer& buffer) { WriteValueEndian<s8, std::endian::native>(buffer, (src.*Member)); }
 	};
 
 	template<class TObject, common::FixedString name, auto Member, std::endian Endian, class Buffer>
