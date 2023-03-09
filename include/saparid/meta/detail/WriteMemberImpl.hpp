@@ -6,8 +6,8 @@
 
 #pragma once
 
-#include <saparid/meta/detail/Tags.hpp>
 #include <saparid/meta/detail/BufferHelpers.hpp>
+#include <saparid/meta/detail/Tags.hpp>
 
 namespace saparid::meta::detail {
 
@@ -71,7 +71,7 @@ namespace saparid::meta::detail {
 	};
 
 	template<class TObject, common::FixedString name, auto Member, class CharT, class Buffer>
-	struct WriteMemberImpl<TObject, astring_<name, Member, CharT>, Buffer> {
+	struct WriteMemberImpl<TObject, zstring_<name, Member, CharT>, Buffer> {
 		constexpr static void _(const TObject& dest, Buffer& buffer) {
 			for(const auto c : (dest.*Member))
 				WriteValueEndian<CharT, std::endian::native>(buffer, c);
@@ -80,4 +80,4 @@ namespace saparid::meta::detail {
 		}
 	};
 
-}
+} // namespace saparid::meta::detail

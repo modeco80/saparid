@@ -20,5 +20,5 @@ namespace saparid::meta::detail {
 	constexpr auto WriteMember(const TObject& src, Buffer& buffer) {
 		return WriteMemberImpl<TObject, TMember, Buffer>::_(src, buffer);
 	}
-		
-}
+
+} // namespace saparid::meta::detail

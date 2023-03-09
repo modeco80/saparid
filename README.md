@@ -18,6 +18,8 @@ If you do so the cmake presets include a -vcpkg preset which uses `C:\\vcpkg` by
 
 ## Visual Studio
 
+First off, good luck.
+
 Open the folder in VS, pick the vcpkg preset for your desired configuration, and build away!
 
 ## CLion

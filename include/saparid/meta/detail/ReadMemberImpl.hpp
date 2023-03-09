@@ -72,7 +72,7 @@ namespace saparid::meta::detail {
 	};
 
 	template<class TObject, common::FixedString name, auto Member, class CharT, class Buffer>
-	struct ReadMemberImpl<TObject, astring_<name, Member, CharT>, Buffer> {
+	struct ReadMemberImpl<TObject, zstring_<name, Member, CharT>, Buffer> {
 		constexpr static void _(TObject& dest, Buffer& buffer) {
 			std::basic_string<CharT> string;
 

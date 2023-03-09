@@ -8,7 +8,7 @@
 
 namespace saparid::meta::detail {
 
-    template<class T>
+	template<class T>
 	constexpr auto Schema() = delete; // define a specialization of this function for your type if you're seeing this in a diagnostic..
 
-}
+} // namespace saparid::meta::detail

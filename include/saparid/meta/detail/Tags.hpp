@@ -4,6 +4,8 @@
 // (C) 2023 modeco80 <lily.modeco80@protonmail.ch>
 //
 
+// These are the metastructure library's default type tag types (try saying that 5 times fast).
+
 #pragma once
 
 #include <saparid/common/CommonTypes.hpp>
@@ -49,7 +51,7 @@ namespace saparid::meta::detail {
 
 	
     template<common::FixedString name, auto Member, class CharT = char>
-	struct astring_ : public _TagBase<name, Member> {};
+	struct zstring_ : public _TagBase<name, Member> {};
 
 
 	// TODO:
@@ -58,7 +60,7 @@ namespace saparid::meta::detail {
 	// 
 	// array_?
 	// 
-	// astringlen_<name, Member, CharT>
+	// zstringlen_<name, Member, CharT> - a null terminated string
 	// 
 	// pstring_<name, Member, CharT, LengthT=u32, LengthEndian> - a string which encoides its length by prefixing it
 	// pstringlen_<name, Member, CharT, LengthT, LengthEndian> - same as astringlen, but for prefix strings

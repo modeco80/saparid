@@ -8,16 +8,20 @@
 
 #pragma once
 
+#include <cstring>
 #include <saparid/common/CommonTypes.hpp>
+#include <saparid/common/SpanBuffer.hpp>
+#include <saparid/meta/meta.hpp>
 
 namespace saparid::proto {
 
 	/** VSCP version helper. As an aside: this type is wire compatible with the client Hello */
-	struct VscpVersion {
+	struct [[gnu::packed]] VscpVersion {
 		u8 major;
 		u8 minor;
 
-		constexpr bool operator==(this const VscpVersion version, const VscpVersion other) { return version.major == other.major && version.minor == other.minor; }
+		// TODO: When clang gets decent C++23 deducing this support, replace this
+		friend constexpr bool operator==(const VscpVersion version, const VscpVersion other) { return version.major == other.major && version.minor == other.minor; }
 	};
 
 	/** Supported VSCP protocol version. */
@@ -52,7 +56,7 @@ namespace saparid::proto {
 		template<class TPayloadHeader>
 		struct BasicMessageHeader {
 			MethodType methodType;
-			u32 unk;	 // this could be strategy
+			u32 unk;	 // this could be source?
 			u32 srcUaid; // i think..?
 			TPayloadHeader payloadHeader;
 		};
@@ -64,12 +68,19 @@ namespace saparid::proto {
 	 */
 	namespace client {
 
-		struct Hello {
+		struct [[gnu::packed]] Hello {
 			char magic[5]; ///< Must be "hello"
 			VscpVersion clientVscpVersion;
 
-			[[nodiscard]] constexpr bool Good() const { return clientVscpVersion == SUPPORTED_VSCP_VERSION; }
+			[[nodiscard]] bool Ok() const { 
+				return !std::memcmp(&shared::HELLO_MAGIC[0], &magic[0], sizeof(shared::HELLO_MAGIC)) &&
+					   clientVscpVersion == SUPPORTED_VSCP_VERSION; 
+			}
 		};
+
+		static_assert(sizeof(Hello) == 0x7, "invalid client Hello size");
+
+		// TYPE 0/ Sys0
 
 		struct Type0PayloadHeader {
 			enum class Op : u32 {
@@ -86,16 +97,28 @@ namespace saparid::proto {
 			Op op;
 			u32 dataSize;
 
-			template<class Data>
-			[[nodiscard]] constexpr Data& Data() {
-				return *std::bit_cast<Data*>(this + 1);
+			/** Get the unparsed data buffer. */
+			[[nodiscard]] common::SpanBuffer Data() {
+				return { std::bit_cast<u8*>(this + 1), dataSize };
 			}
+
+			/** Parse the packet data buffer into a data structure of type \ref Payload */
+			template<class Payload>
+			Payload DataAs() {
+				Payload p;
+				auto buffer = Data();
+				meta::ReadObject(p, buffer);
+				return p;
+			}
+		};
+		
+		struct Type0RegisterPayload {
+			std::string username;
+			std::string avatarWRLPath;
 		};
 
 		using Type0MessageHeader = shared::BasicMessageHeader<Type0PayloadHeader>;
 
-		
-		static_assert(sizeof(Hello) == 0x7, "invalid client Hello size");
 
 	} // namespace client
 
@@ -120,3 +143,18 @@ namespace saparid::proto {
 		static_assert(sizeof(server::Hello) == 0xe, "invalid server Hello size");
 	} // namespace server
 } // namespace saparid::proto
+
+
+namespace saparid::meta::detail {
+
+
+	template<>
+	auto Schema<::saparid::proto::client::Type0RegisterPayload>() {
+		using ::saparid::proto::client::Type0RegisterPayload;
+		return kumi::make_tuple(
+			zstring_<"username", &Type0RegisterPayload::username>{}, 
+			zstring_<"avatarWRLPath", &Type0RegisterPayload::avatarWRLPath>{} 
+		);
+	}
+
+}

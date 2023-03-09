@@ -5,8 +5,10 @@ macro(_saparid_target_gcclike target)
 	endif()
 endmacro()
 
+# TODO: detect clang-cl and allow it
+# but wall off real MSVC
 macro(_saparid_target_msvc target)
-	set(_CORE_COMPILE_ARGS /permissive- /W4)
+	set(_CORE_COMPILE_ARGS /permissive- /W3)
 
 	# add warnings as errors for release
 	if(CMAKE_BUILD_TYPE STREQUAL "Release")

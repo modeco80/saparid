@@ -4,7 +4,7 @@
 
 namespace saparid::common {
 
-	/** A simple implementation of the metastructure Buffer concept
+	/** A simple implementation of the metastructure library's Buffer concept
 		backed by an arbitrary range of bytes. **/
 	struct SpanBuffer {
 		using SizeType = std::size_t;
@@ -13,8 +13,8 @@ namespace saparid::common {
 
 		constexpr SpanBuffer(u8* buf, SizeType size)
 			: begin_(buf),
-			  cursor_(buf),
-			  end_(buf + size) {}
+			  end_(buf + size),
+			  cursor_(buf) {}
 
 		// container interface
 		constexpr u8* begin() { return cursor_; }
@@ -46,4 +46,4 @@ namespace saparid::common {
 		u8* cursor_ {};
 	};
 
-}
+} // namespace saparid::common

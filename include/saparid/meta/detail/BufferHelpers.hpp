@@ -10,7 +10,7 @@
 #include <cstring>
 #include <saparid/common/CommonTypes.hpp>
 
-namespace saparid::common::meta::detail {
+namespace saparid::meta::detail {
 
 	// adjustor trait to pun certain types so that std::bitswap doesn't scream
 	template<class T>
@@ -29,7 +29,7 @@ namespace saparid::common::meta::detail {
 	};
 
 	template<class T>
-	constexpr auto ToBestBits(T& t) {
+	constexpr auto& ToBestBits(T& t) {
 		return *std::bit_cast<typename BestBitType<T>::type*>(&t);
 	}
 
@@ -54,7 +54,6 @@ namespace saparid::common::meta::detail {
 		if constexpr(Endian != std::endian::native && sizeof(T) > 1)
 			out = std::byteswap(ToBestBits(out));
 
-		// read data
 		std::memcpy(buffer.data(), &out, sizeof(T));
 		buffer += sizeof(T);
 	}
