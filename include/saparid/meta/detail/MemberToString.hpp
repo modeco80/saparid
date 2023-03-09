@@ -66,8 +66,13 @@ namespace saparid::meta::detail {
 		static std::string _() { return fmt::format("double({}) {}", (Endian == std::endian::little) ? "le" : "be", name); }
 	};
 
-	template<common::FixedString name, auto Member, class CharT>
-	struct MemberToStringImpl<zstring_<name, Member, CharT>> {
+	template<common::FixedString name, auto Member, Metastructure Struct>
+	struct MemberToStringImpl<struct_<name, Member, Struct>> {
+		static std::string _() { return fmt::format("metastructure {}", name); }
+	};
+
+	template<common::FixedString name, auto Member>
+	struct MemberToStringImpl<zstring_<name, Member>> {
 		static std::string _() { return fmt::format("zstring {}", name); }
 	};
 

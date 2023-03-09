@@ -4,6 +4,8 @@
 // (C) 2023 modeco80 <lily.modeco80@protonmail.ch>
 //
 
+// Various metastructure object utilities.
+
 #include <saparid/meta/detail/Schema.hpp>
 #include <saparid/meta/detail/ReadWriteMember.hpp>
 #include <saparid/meta/detail/MemberToString.hpp>
@@ -27,9 +29,8 @@ namespace saparid::meta::detail {
 		return kumi::size<decltype(Schema<T>())>::value;
 	}
 
-	/** Generate a simple string dump of an object and the contents of its data members. Useful for debugging. 
-		The format of this string dump is not by any means stable.
-		So please, please, PLEASE!!!, don't rely on it. */
+	/** Generate a simple string representation of an object and the contents of its data members. Useful for debugging.
+		The format of this string is simple. */
 	template<class T>
 	auto StringifyObject(const T& object) {
 		std::string str = "{ ";
@@ -41,11 +42,22 @@ namespace saparid::meta::detail {
 			auto memberName = MemberToString<M>();
 			const auto& value = (object.*M::MemPtr);
 
+			auto transformValue = [&value]() {
+				using V = std::remove_cvref_t<decltype(value)>;
+				if constexpr(std::is_same_v<V, std::string>)
+					return fmt::format("\"{}\"", value);
+				else
+					if constexpr(Metastructure<V>)
+						return StringifyObject(value);
+					else
+						return fmt::format("{}", value);
+			};
+
 			// Do some semi-fancy comma formatting.
 			if(index++ < lastCommaIndex)
-				str += fmt::format("{} = {}, ", memberName, value);
+				str += fmt::format("{} = {}, ", memberName, transformValue());
 			else
-				str += fmt::format("{} = {}", memberName, value);
+				str += fmt::format("{} = {}", memberName, transformValue());
 		});
 
 		str += " }";

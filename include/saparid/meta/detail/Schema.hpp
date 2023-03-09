@@ -11,4 +11,13 @@ namespace saparid::meta::detail {
 	template<class T>
 	constexpr auto Schema() = delete; // define a specialization of this function for your type if you're seeing this in a diagnostic..
 
+	// clang-format off
+
+	template<class T>
+	concept Metastructure = requires(T t) {
+		{ Schema<T>() }; // Schema queries should compile, otherwise this isn't a metastructure
+	};
+
+	// clang-format on
+
 } // namespace saparid::meta::detail

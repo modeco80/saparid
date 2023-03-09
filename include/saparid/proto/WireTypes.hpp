@@ -145,15 +145,17 @@ namespace saparid::proto {
 } // namespace saparid::proto
 
 
+// metastructure definitions
+
 namespace saparid::meta::detail {
 
 
 	template<>
 	auto Schema<::saparid::proto::client::Type0RegisterPayload>() {
-		using ::saparid::proto::client::Type0RegisterPayload;
+		using T = ::saparid::proto::client::Type0RegisterPayload;
 		return kumi::make_tuple(
-			zstring_<"username", &Type0RegisterPayload::username>{}, 
-			zstring_<"avatarWRLPath", &Type0RegisterPayload::avatarWRLPath>{} 
+			zstring_<"username", &T::username>{},
+			zstring_<"avatarWRLPath", &T::avatarWRLPath>{}
 		);
 	}
 

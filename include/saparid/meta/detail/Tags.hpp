@@ -49,8 +49,10 @@ namespace saparid::meta::detail {
 	template<common::FixedString name, auto Member, std::endian Endian = std::endian::little>
 	struct double_ : public _TagBase<name, Member> {};
 
-	
-    template<common::FixedString name, auto Member, class CharT = char>
+	template<common::FixedString name, auto Member, Metastructure Struct>
+	struct struct_ : public _TagBase<name, Member> {};
+
+    template<common::FixedString name, auto Member>
 	struct zstring_ : public _TagBase<name, Member> {};
 
 
@@ -58,12 +60,13 @@ namespace saparid::meta::detail {
 	// 
 	// discard_<Size> discards Size bytes
 	// 
-	// array_?
+	// array_<name, Member, Elem, Len, Endian> - a static array
+	//											if elem is a Metastructure Endian is ignored
 	// 
-	// zstringlen_<name, Member, CharT> - a null terminated string
+	// zstringlen_<name, Member, MaxLen> - a null terminated string which stops after a certain max length
 	// 
-	// pstring_<name, Member, CharT, LengthT=u32, LengthEndian> - a string which encoides its length by prefixing it
-	// pstringlen_<name, Member, CharT, LengthT, LengthEndian> - same as astringlen, but for prefix strings
+	// pstring_<name, Member, LengthT=u32, LengthEndian> - a string which encoides its length by prefixing it
+	// pstringlen_<name, Member, LengthT, LengthEndian> - same as astringlen, but for prefix strings
 	//
 	// User provided tags? This SHOULD just work, provided the user
 	// adds respective implementations ReadMemberImpl and WriteMemberImpl 

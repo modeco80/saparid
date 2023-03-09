@@ -11,6 +11,9 @@
 
 namespace saparid::meta::detail {
 
+	template<class T, class Buffer>
+	constexpr void WriteObject(const T& src, Buffer& dest);
+
 	template<class TObject, class TMember, class Buffer>
 	struct WriteMemberImpl;
 
@@ -70,13 +73,21 @@ namespace saparid::meta::detail {
 		constexpr static void _(const TObject& src, Buffer& buffer) { WriteValueEndian<double, Endian>(buffer, (src.*Member)); }
 	};
 
-	template<class TObject, common::FixedString name, auto Member, class CharT, class Buffer>
-	struct WriteMemberImpl<TObject, zstring_<name, Member, CharT>, Buffer> {
+	template<class TObject, common::FixedString name, auto Member, Metastructure Struct, class Buffer>
+	struct WriteMemberImpl<TObject, struct_<name, Member, Struct>, Buffer> {
+		constexpr static void _(const TObject& src, Buffer& buffer) {
+			static_assert(!std::is_same_v<TObject, Struct>, "Cyclic write. Please remove this element from your metastructure definition");
+			WriteObject<Struct>((src.*Member), buffer);
+		}
+	};
+
+	template<class TObject, common::FixedString name, auto Member, class Buffer>
+	struct WriteMemberImpl<TObject, zstring_<name, Member>, Buffer> {
 		constexpr static void _(const TObject& dest, Buffer& buffer) {
 			for(const auto c : (dest.*Member))
-				WriteValueEndian<CharT, std::endian::native>(buffer, c);
+				WriteValueEndian<char, std::endian::native>(buffer, c);
 
-			WriteValueEndian<CharT, std::endian::native>(buffer, (CharT)0);
+			WriteValueEndian<char, std::endian::native>(buffer, 0);
 		}
 	};
 

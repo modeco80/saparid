@@ -10,11 +10,10 @@
 
 #include <saparid/meta/detail/Object.hpp>
 
+/** The metastructure library **/
 namespace saparid::meta {
-
 	using detail::ForEachMember;
 	using detail::StringifyObject;
 	using detail::ReadObject;
 	using detail::WriteObject;
-
 }
