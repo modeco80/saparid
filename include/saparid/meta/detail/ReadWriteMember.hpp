@@ -9,6 +9,9 @@
 #include <saparid/meta/detail/ReadMemberImpl.hpp>
 #include <saparid/meta/detail/WriteMemberImpl.hpp>
 
+// TODO: support enum classes properly (or at the very least, expand the hacks we do
+//  to all the types we need to do them to)
+
 namespace saparid::meta::detail {
 
 	template<class TObject, class TMember, class Buffer>

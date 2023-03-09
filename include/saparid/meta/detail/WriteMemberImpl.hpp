@@ -19,12 +19,12 @@ namespace saparid::meta::detail {
 
 	template<class TObject, common::FixedString name, auto Member, class Buffer>
 	struct WriteMemberImpl<TObject, u8_<name, Member>, Buffer> {
-		constexpr static void _(const TObject& src, Buffer& buffer) { WriteValueEndian<s8, std::endian::native>(buffer, (src.*Member)); }
+		constexpr static void _(const TObject& src, Buffer& buffer) { WriteValueEndian<s8, std::endian::native>(buffer, static_cast<s8>(src.*Member)); }
 	};
 
 	template<class TObject, common::FixedString name, auto Member, class Buffer>
 	struct WriteMemberImpl<TObject, s8_<name, Member>, Buffer> {
-		constexpr static void _(const TObject& src, Buffer& buffer) { WriteValueEndian<s8, std::endian::native>(buffer, (src.*Member)); }
+		constexpr static void _(const TObject& src, Buffer& buffer) { WriteValueEndian<s8, std::endian::native>(buffer, static_cast<u8>(src.*Member)); }
 	};
 
 	template<class TObject, common::FixedString name, auto Member, std::endian Endian, class Buffer>
@@ -39,7 +39,7 @@ namespace saparid::meta::detail {
 
 	template<class TObject, common::FixedString name, auto Member, std::endian Endian, class Buffer>
 	struct WriteMemberImpl<TObject, u32_<name, Member, Endian>, Buffer> {
-		constexpr static void _(const TObject& src, Buffer& buffer) { WriteValueEndian<u32, Endian>(buffer, (src.*Member)); }
+		constexpr static void _(const TObject& src, Buffer& buffer) { WriteValueEndian<u32, Endian>(buffer, static_cast<u32>(src.*Member)); }
 	};
 
 	template<class TObject, common::FixedString name, auto Member, std::endian Endian, class Buffer>

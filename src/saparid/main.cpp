@@ -7,11 +7,13 @@
 #include <cstdio>
 
 #include <saparid/common/CommonTypes.hpp>
-
+#include <saparid/common/SpanBuffer.hpp>
 #include <saparid/proto/WireTypes.hpp>
+#include <saparid/proto/Message.hpp>
 
 using namespace saparid;
 
+#if 0 // metastructure test code, see main()
 struct other {
 	u16 hi;
 };
@@ -43,9 +45,8 @@ namespace saparid::meta::detail {
 		);
 	}
 
-
-
 } // namespace saparid::meta::detail
+#endif
 
 int main() {
 
@@ -53,6 +54,21 @@ int main() {
 	u8 buffer[64] {};
 	common::SpanBuffer span(&buffer[0], sizeof(buffer));
 
+	// write a simple message
+	meta::WriteObject(proto::shared::VscpMessageHeader { proto::shared::MethodType::Type0, 0, 0 }, span);
+	meta::WriteObject(proto::client::Type0Message { proto::client::Type0Message::Op::Register, 21  }, span);
+	meta::WriteObject(proto::client::Type0Message::RegisterPayload { "lily", "avtwrl/test.wrl"  }, span);
+
+	span.reset();
+
+	for(auto c : span) {
+		fmt::print("{:02x} ", c);
+	}
+
+	proto::ClientMessage message(span);
+	message.Read();
+
+#if 0 // basic metastructure testing
 	// write a test object into that buffer, and reset it
 	// back to the start of memory
 	meta::WriteObject(test { 0xFE, 0xCADE, "hello worldasdfghjkl", { 32 } }, span);
@@ -69,5 +85,6 @@ int main() {
 	meta::ReadObject(read, span);
 
 	fmt::print("magic word: {}\n", meta::StringifyObject(read));
+#endif
 	return 0;
 }

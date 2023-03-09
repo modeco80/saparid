@@ -9,8 +9,8 @@
 #pragma once
 
 #include <cstring>
+#include <variant>
 #include <saparid/common/CommonTypes.hpp>
-#include <saparid/common/SpanBuffer.hpp>
 #include <saparid/meta/meta.hpp>
 
 namespace saparid::proto {
@@ -53,12 +53,10 @@ namespace saparid::proto {
 		
 		};
 
-		template<class TPayloadHeader>
-		struct BasicMessageHeader {
+		struct [[gnu::packed]] VscpMessageHeader {
 			MethodType methodType;
 			u32 unk;	 // this could be source?
 			u32 srcUaid; // i think..?
-			TPayloadHeader payloadHeader;
 		};
 
 	} // namespace shared
@@ -80,9 +78,7 @@ namespace saparid::proto {
 
 		static_assert(sizeof(Hello) == 0x7, "invalid client Hello size");
 
-		// TYPE 0/ Sys0
-
-		struct Type0PayloadHeader {
+		struct Type0Message {
 			enum class Op : u32 {
 				Register,
 				Deregister,
@@ -94,30 +90,24 @@ namespace saparid::proto {
 				Quit
 			};
 
+			struct RegisterPayload {
+				std::string username;
+				std::string avatarWRLPath;
+			};
+
+			struct DeregisterPayload {
+				u32 uaid;
+			};
+
+			using Payloads = std::variant<
+				RegisterPayload,
+				DeregisterPayload
+			>;
+
 			Op op;
 			u32 dataSize;
-
-			/** Get the unparsed data buffer. */
-			[[nodiscard]] common::SpanBuffer Data() {
-				return { std::bit_cast<u8*>(this + 1), dataSize };
-			}
-
-			/** Parse the packet data buffer into a data structure of type \ref Payload */
-			template<class Payload>
-			Payload DataAs() {
-				Payload p;
-				auto buffer = Data();
-				meta::ReadObject(p, buffer);
-				return p;
-			}
 		};
 		
-		struct Type0RegisterPayload {
-			std::string username;
-			std::string avatarWRLPath;
-		};
-
-		using Type0MessageHeader = shared::BasicMessageHeader<Type0PayloadHeader>;
 
 
 	} // namespace client
@@ -149,13 +139,42 @@ namespace saparid::proto {
 
 namespace saparid::meta::detail {
 
+	namespace _proto = ::saparid::proto;
 
 	template<>
-	auto Schema<::saparid::proto::client::Type0RegisterPayload>() {
-		using T = ::saparid::proto::client::Type0RegisterPayload;
+	auto Schema<_proto::shared::VscpMessageHeader>() {
+		using _proto::shared::VscpMessageHeader;
+		return kumi::make_tuple(
+			u8_<"methodType", &VscpMessageHeader::methodType>{},
+			u32_<"unk", &VscpMessageHeader::unk>{},
+			u32_<"srcUaid", &VscpMessageHeader::srcUaid>{}
+		);
+	}
+
+
+	template<>
+	auto Schema<_proto::client::Type0Message>() {
+		using T = _proto::client::Type0Message;
+		return kumi::make_tuple(
+			u32_<"op", &T::op>{},
+			u32_<"dataSize", &T::dataSize>{}
+		);
+	}
+
+	template<>
+	auto Schema<_proto::client::Type0Message::RegisterPayload>() {
+		using T = _proto::client::Type0Message::RegisterPayload;
 		return kumi::make_tuple(
 			zstring_<"username", &T::username>{},
 			zstring_<"avatarWRLPath", &T::avatarWRLPath>{}
+		);
+	}
+
+	template<>
+	auto Schema<_proto::client::Type0Message::DeregisterPayload>() {
+		using T = _proto::client::Type0Message::DeregisterPayload;
+		return kumi::make_tuple(
+			u32_<"uaid", &T::uaid>{}
 		);
 	}
 
