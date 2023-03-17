@@ -107,7 +107,11 @@ namespace saparid::proto {
 			Op op;
 			u32 dataSize;
 		};
-		
+
+		// Convenience variant
+		using HeaderTypes = std::variant<
+			Type0Message
+		>;
 
 
 	} // namespace client

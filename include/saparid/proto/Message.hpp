@@ -6,63 +6,87 @@
 namespace saparid::proto {
 
 	namespace detail {
-		using ClientHeaderTypes = std::variant<
-			client::Type0Message
-		>;
 
-		template<std::size_t index, class Variant, class Buffer>
-		void InitAndReadIndex(Variant& variant, Buffer& buffer) {
-			variant.template emplace<index>();
-			meta::ReadObject(std::get<index>(variant), buffer);
+
+		template<class T, class Variant, class Buffer>
+		void ReadIntoVariant(Variant& variant, Buffer& buffer) {
+			T obj{};
+			meta::ReadObject(obj, buffer);
+			variant = obj;
 		}
 
 		template<class Buffer>
 		struct ClientMessage {
 
-			ClientMessage(Buffer& buffer)
+			explicit ClientMessage(Buffer& buffer)
 				: buffer(buffer) {
 			}
 
 			void Read() {
+				using namespace shared;
+				using enum MethodType;
 				meta::ReadObject(messageHeader, buffer);
-				ReadPayload();
+
+				// clang-format off
+
+				// Read the payload data
+				switch(messageHeader.methodType) {
+					case Type0: ReadType0(); break;
+					default: break;
+				}
+				// clang-format on
 			}
 
-			void ReadPayload() {
+			void ReadType0() {
+				using namespace client;
+				using enum Type0Message::Op;
+				Type0Message readPayloadHeader{};
+				meta::ReadObject(readPayloadHeader, buffer);
+
+				// ?
+				//if(header_size > buffer.size() )
+				// return;
+
+				auto dataBuffer = Buffer{ buffer.data(), buffer.size() };
+
+				// clang-format off
+				switch(readPayloadHeader.op) {
+					case Register: ReadIntoVariant<Type0Message::RegisterPayload>(type0Payloads, dataBuffer); break;
+					case Deregister: ReadIntoVariant<Type0Message::DeregisterPayload>(type0Payloads, dataBuffer); break;
+					default: break;
+				}
+				// clang-format on
+
+				payloadHeader = readPayloadHeader;
+			}
+
+			// accessors
+
+			shared::VscpMessageHeader& TopLevelHeader() {
+				return messageHeader;
+			}
+
+			template<class T>
+			auto& HeaderAs() {
+				return std::get<T>(payloadHeader);
+			}
+
+			template<class T>
+			auto& DataAs() {
 				using enum shared::MethodType;
 				switch(messageHeader.methodType) {
-					case Type0:
-						InitAndReadIndex<0>(payloadHeader, buffer);
-						ReadType0Payload();
-						break;
-
-
-					default:
-						break;
-				}
-			}
-
-			void ReadType0Payload() {
-				using enum client::Type0Message::Op;
-				auto& header = std::get<0>(payloadHeader);
-
-				switch(header.op) {
-					case Register:
-						InitAndReadIndex<0>(type0Payloads, buffer);
-						break;
-					case Deregister:
-						InitAndReadIndex<1>(type0Payloads, buffer);
-						break;
+					case Type0: return std::get<T>(type0Payloads);
+					default: break;
 				}
 			}
 
 		   private:
 			Buffer buffer;
-			shared::VscpMessageHeader messageHeader;
-			ClientHeaderTypes payloadHeader;
 
-			// Eghhgghghhghg maybe fix this
-			client::Type0Message::Payloads type0Payloads;
+			shared::VscpMessageHeader messageHeader{};
+			client::HeaderTypes payloadHeader{};
+
+			client::Type0Message::Payloads type0Payloads{};
 		};
 	}
 

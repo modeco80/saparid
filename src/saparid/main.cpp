@@ -48,6 +48,15 @@ namespace saparid::meta::detail {
 } // namespace saparid::meta::detail
 #endif
 
+#include <type_traits>
+#include <iosfwd>
+
+
+template<class Enum> requires(std::is_enum_v<Enum>)
+std::ostream& operator<<(std::ostream& os, Enum val) {
+	return os << static_cast<std::underlying_type_t<Enum>>(val);
+}
+
 int main() {
 
 	// set up a tiny little test buffer
@@ -61,12 +70,19 @@ int main() {
 
 	span.reset();
 
-	for(auto c : span) {
-		fmt::print("{:02x} ", c);
-	}
+	//for(auto c : span) {
+	//	fmt::print("{:02x} ", c);
+	//}
+
+	// let's try reading that buffer back into a message
 
 	proto::ClientMessage message(span);
 	message.Read();
+
+
+	fmt::print("header: {}\n", meta::StringifyObject(message.TopLevelHeader()));
+	fmt::print("type0: {}\n", meta::StringifyObject(message.HeaderAs<proto::client::Type0Message>()));
+	fmt::print("register: {}\n", meta::StringifyObject(message.DataAs<proto::client::Type0Message::RegisterPayload>()));
 
 #if 0 // basic metastructure testing
 	// write a test object into that buffer, and reset it

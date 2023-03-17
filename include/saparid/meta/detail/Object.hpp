@@ -46,11 +46,16 @@ namespace saparid::meta::detail {
 				using V = std::remove_cvref_t<decltype(value)>;
 				if constexpr(std::is_same_v<V, std::string>)
 					return fmt::format("\"{}\"", value);
-				else
-					if constexpr(Metastructure<V>)
+				else {
+					// kludge to support enums. I really should just have some adl helper
+					// which can fill in based on a simple constexpr function
+					if constexpr(std::is_enum_v<V>)
+						return fmt::format("{}", static_cast<std::underlying_type_t<V>>(value));
+					else if constexpr(Metastructure<V>)
 						return StringifyObject(value);
 					else
 						return fmt::format("{}", value);
+				}
 			};
 
 			// Do some semi-fancy comma formatting.
